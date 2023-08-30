@@ -1,144 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web-App</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Timer App</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
         body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          min-height: 100vh;
-          margin: 0;
-          background-color: #f8f8f8;
+            background-color: grey;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        #sidebar {
-          width: 20%;
-          background-color: #333;
-          color: #fff;
-          padding: 20px;
-          box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+        .timer-container {
+            text-align: center;
         }
-        #content {
-          flex: 1;
-          padding: 20px;
-        }
-        h1 {
-          color: #333;
-        }
-        button {
-          padding: 15px 30px;
-          font-size: 18px;
-          background-color: #007bff;
-          color: #fff;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          margin: 10px;
-        }
-        .timer {
-          font-size: 48px;
-          margin-top: 20px;
-        }
-      </style>
+    </style>
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 </head>
 <body>
-<div id="sidebar">
-  <h2>Optionen</h2>
-  <button id="timerOption">Timer</button>
-</div>
-<div id="content">
-  <h1 id="pageTitle"></h1>
-  <div class="timer" id="timer">00:00:00</div>
-  <div id="timerControls">
-    <label for="hours">Stunden:</label>
-    <input type="number" id="hours" min="0" value="0">
-    <label for="minutes">Minuten:</label>
-    <input type="number" id="minutes" min="0" value="0">
-    <label for="seconds">Sekunden:</label>
-    <input type="number" id="seconds" min="0" value="0">
-    <button id="setTimerBtn">Setzen</button>
-  </div>
-  <button id="startBtn">Start</button>
-  <button id="pauseBtn">Pause</button>
-  <button id="resetBtn">Reset</button>
-</div>
-  <script>
-    const timerOptionButton = document.getElementById("timerOption");
-    const timeOptionButton = document.getElementById("timeOption");
-    const pageTitleElement = document.getElementById("pageTitle");
-    const contentElement = document.getElementById("content");
-    const timerElement = document.getElementById("timer");
-    const hoursInput = document.getElementById("hours");
-    const minutesInput = document.getElementById("minutes");
-    const secondsInput = document.getElementById("seconds");
-    const setTimerButton = document.getElementById("setTimerBtn");
-    const startButton = document.getElementById("startBtn");
-    const pauseButton = document.getElementById("pauseBtn");
-    const resetButton = document.getElementById("resetBtn");
-    let timerInterval;
-    let endTime;
-    let remainingTime = 0;
-    let isRunning = false;
-  
-    function updateTimerDisplay() {
-      const hours = Math.floor(remainingTime / 3600);
-      const minutes = Math.floor((remainingTime % 3600) / 60);
-      const seconds = remainingTime % 60;
-      const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-      timerElement.textContent = formattedTime;
-    }
-  
-    setTimerButton.addEventListener("click", () => {
-      const hours = parseInt(hoursInput.value) || 0;
-      const minutes = parseInt(minutesInput.value) || 0;
-      const seconds = parseInt(secondsInput.value) || 0;
-      remainingTime = hours * 3600 + minutes * 60 + seconds;
-      updateTimerDisplay();
-    });
-  
-    startButton.addEventListener("click", () => {
-      if (!isRunning && remainingTime > 0) {
-        isRunning = true;
-        endTime = Date.now() + remainingTime * 1000;
-        timerInterval = setInterval(() => {
-          remainingTime = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    <div class="timer-container">
+        <div id="timer" class="mdl-typography--display-4">00:00:00</div>
+        <button id="startButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+            Start
+        </button>
+        <button id="stopButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled>
+            Stop
+        </button>
+        <button id="resetButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled>
+            Reset
+        </button>
+    </div>
+
+    <script>
+      let timerInterval;
+      let timerValue = 0;
+
+      const timerDisplay = document.getElementById('timer');
+      const startButton = document.getElementById('startButton');
+      const stopButton = document.getElementById('stopButton');
+      const resetButton = document.getElementById('resetButton');
+
+      function updateTimerDisplay() {
+          const hours = Math.floor(timerValue / 3600);
+          const minutes = Math.floor((timerValue % 3600) / 60);
+          const seconds = timerValue % 60;
+          timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+
+      function startTimer() {
+          startButton.disabled = true;
+          stopButton.disabled = false;
+          resetButton.disabled = false;
+
+          timerInterval = setInterval(() => {
+              timerValue++;
+              updateTimerDisplay();
+          }, 1000);
+      }
+
+      function stopTimer() {
+          startButton.disabled = false;
+          stopButton.disabled = true;
+          clearInterval(timerInterval);
+      }
+
+      function resetTimer() {
+          stopTimer();
+          timerValue = 0;
           updateTimerDisplay();
-          if (remainingTime === 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-          }
-        }, 1000);
+          resetButton.disabled = true;
       }
-    });
-  
-    pauseButton.addEventListener("click", () => {
-      if (isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
-      }
-    });
-  
-    resetButton.addEventListener("click", () => {
-      clearInterval(timerInterval);
-      isRunning = false;
-      remainingTime = 0;
-      updateTimerDisplay();
-    });
-  
-    timerOptionButton.addEventListener("click", () => {
-      pageTitleElement.textContent = "Timer Web-App";
-      contentElement.style.display = "block";
-      timerElement.style.display = "block";
-      document.getElementById("timerControls").style.display = "block";
-    });
-  
-    timeOptionButton.addEventListener("click", () => {
-      pageTitleElement.textContent = "Uhrzeit Web-App";
-      contentElement.style.display = "none";
-      timerElement.style.display = "none";
-      document.getElementById("timerControls").style.display = "none";
-    });
-</script>
+
+      startButton.addEventListener('click', startTimer);
+      stopButton.addEventListener('click', stopTimer);
+      resetButton.addEventListener('click', resetTimer);
+    </script>
 </body>
 </html>
